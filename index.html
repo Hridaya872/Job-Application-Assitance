@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Application Assistant</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --banner-bg: #eff6ff;
+      --banner-border: #bfdbfe;
+      --tip-bg: #f8fafc;
+      --success-bg: #dcfce7;
+      --success-text: #166534;
+      --warn-bg: #fee2e2;
+      --warn-text: #991b1b;
+    }
+
+    body.dark {
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --banner-bg: #172554;
+      --banner-border: #1e40af;
+      --tip-bg: #0f172a;
+      --success-bg: #064e3b;
+      --success-text: #6ee7b7;
+      --warn-bg: #7f1d1d;
+      --warn-text: #fca5a5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 20px;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header-title h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header-title p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    textarea, input[type="text"], select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: var(--card);
+      transition: border-color 0.2s;
+    }
+
+    textarea {
+      height: 200px;
+      resize: vertical;
+    }
+
+    textarea:focus, input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .meta-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 11px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    button.secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    button.secondary:hover {
+      opacity: 0.85;
+    }
+
+    button.small {
+      padding: 8px 14px;
+      font-size: 0.85rem;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 20px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: transparent;
+      color: var(--muted);
+      border-radius: 6px 6px 0 0;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+    }
+
+    .tab-btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      background: var(--card);
+      color: var(--primary);
+      border: 1px solid var(--border);
+      border-bottom: 2px solid var(--card);
+      margin-bottom: -2px;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .score-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--banner-bg);
+      border: 1px solid var(--banner-border);
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .score-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .badge-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      margin-bottom: 18px;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .badge-match {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .badge-miss {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+    }
+
+    .suggestion-list {
+      padding-left: 20px;
+      margin-top: 8px;
+    }
+
+    .suggestion-list li {
+      margin-bottom: 8px;
+    }
+
+    .cover-letter-box {
+      height: 320px;
+      font-family: Georgia, serif;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .toolbar-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .qa-item {
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+    }
+
+    .qa-item:last-child {
+      border-bottom: none;
+    }
+
+    .qa-q {
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .qa-tip {
+      font-size: 0.9rem;
+      color: var(--muted);
+      background: var(--tip-bg);
+      padding: 8px 12px;
+      border-left: 3px solid var(--primary);
+      border-radius: 4px;
+    }
+
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      header, .input-grid, .meta-row, .actions, .tabs, .no-print { display: none !important; }
+      .card { border: none; box-shadow: none; padding: 0; }
+      .tab-panel.active { display: block !important; }
+      textarea.cover-letter-box { border: none; height: auto; resize: none; font-size: 12pt; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-title">
+        <h1>Job Application Assistant</h1>
+        <p>Compare your resume against a job posting, generate a tailored cover letter, and prep for interviews.</p>
+      </div>
+      <div class="header-controls">
+        <button class="secondary small" onclick="toggleTheme()" id="themeBtn">Dark Mode</button>
+        <button class="secondary small" onclick="clearSavedData()">Clear All</button>
+      </div>
+    </header>
+
+    <div class="input-grid">
+      <div class="card">
+        <label for="resumeInput">1. Paste Your Resume</label>
+        <textarea id="resumeInput" oninput="saveInputs()" placeholder="Paste your resume text, skills, and experience here..."></textarea>
+      </div>
+      <div class="card">
+        <label for="jobInput">2. Paste Job Description</label>
+        <textarea id="jobInput" oninput="saveInputs()" placeholder="Paste the target job posting requirements and responsibilities here..."></textarea>
+      </div>
+    </div>
+
+    <div class="card meta-row">
+      <div>
+        <label for="candidateName">Your Name</label>
+        <input type="text" id="candidateName" oninput="saveInputs()" placeholder="e.g., Alex Morgan" />
+      </div>
+      <div>
+        <label for="roleTitle">Target Job Title</label>
+        <input type="text" id="roleTitle" oninput="saveInputs()" placeholder="e.g., Senior Product Analyst" />
+      </div>
+      <div>
+        <label for="companyName">Company Name</label>
+        <input type="text" id="companyName" oninput="saveInputs()" placeholder="e.g., Acme Corp" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="analyzeApplication()">Analyze &amp; Generate Materials</button>
+      <button class="secondary" onclick="loadSampleData()">Load Sample Data</button>
+    </div>
+
+    <div id="resultsSection" style="display: none;">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('matchTab', this)">1. Resume Match &amp; Tips</button>
+        <button class="tab-btn" onclick="switchTab('coverTab', this)">2. Custom Cover Letter</button>
+        <button class="tab-btn" onclick="switchTab('interviewTab', this)">3. Interview Prep</button>
+      </div>
+
+      <!-- Tab 1: Resume Comparison -->
+      <div id="matchTab" class="tab-panel active card">
+        <div class="score-banner">
+          <div>
+            <strong>Keyword Alignment Score</strong>
+            <p style="font-size: 0.85rem; color: var(--muted);">Based on key skills and terminology found in the job posting</p>
+          </div>
+          <div class="score-number" id="matchScore">0%</div>
+        </div>
+
+        <h3>Matched Keywords</h3>
+        <div class="badge-container" id="matchedKeywords"></div>
+
+        <h3>Missing Keywords to Consider Adding</h3>
+        <div class="badge-container" id="missingKeywords"></div>
+
+        <h3>Actionable Resume Suggestions</h3>
+        <ul class="suggestion-list" id="suggestionsList"></ul>
+      </div>
+
+      <!-- Tab 2: Cover Letter -->
+      <div id="coverTab" class="tab-panel card">
+        <div class="toolbar-row no-print">
+          <label for="coverLetterOutput" style="margin:0;">Generated Cover Letter (Editable)</label>
+          <select id="toneSelect" onchange="regenerateCoverLetter()" style="width: auto;">
+            <option value="professional">Tone: Professional &amp; Balanced</option>
+            <option value="enthusiastic">Tone: Enthusiastic &amp; Bold</option>
+            <option value="concise">Tone: Concise &amp; Direct</option>
+          </select>
+        </div>
+        <textarea id="coverLetterOutput" class="cover-letter-box"></textarea>
+        <div class="no-print" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button onclick="copyCoverLetter()">Copy Text</button>
+          <button class="secondary" onclick="window.print()">Save / Print as PDF</button>
+          <span id="copyStatus" style="font-size: 0.9rem; color: var(--success-text); font-weight: 600;"></span>
+        </div>
+      </div>
+
+      <!-- Tab 3: Interview Prep -->
+      <div id="interviewTab" class="tab-panel card">
+        <div class="toolbar-row">
+          <h3>Tailored Interview Questionnaire</h3>
+          <button class="secondary small no-print" onclick="window.print()">Print Prep Sheet</button>
+        </div>
+        <div id="interviewList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STOP_WORDS = new Set([
+      "about","above","after","again","against","all","am","an","and","any","are","as","at",
+      "be","because","been","before","being","below","between","both","but","by","can","could",
+      "did","do","does","doing","down","during","each","few","for","from","further","had","has",
+      "have","having","he","her","here","hers","herself","him","himself","his","how","i","if",
+      "in","into","is","it","its","itself","just","me","more","most","my","myself","no","nor",
+      "not","now","of","off","on","once","only","or","other","our","ours","ourselves","out",
+      "over","own","same","she","should","so","some","such","than","that","the","their","theirs",
+      "them","themselves","then","there","these","they","this","those","through","to","too",
+      "under","until","up","very","was","we","were","what","when","where","which","while","who",
+      "whom","why","will","with","would","you","your","yours","yourself","work","working","team",
+      "role","experience","years","ability","skills","strong","knowledge","using","including",
+      "preferred","required","qualifications","responsibilities","job","company","candidate"
+    ]);
+
+    let currentAnalysis = { matched: [], missing: [], topJobTerms: [] };
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("jaa_theme");
+      if (savedTheme === "dark") {
+        document.body.classList.add("dark");
+        document.getElementById("themeBtn").textContent = "Light Mode";
+      }
+
+      ["resumeInput", "jobInput", "candidateName", "roleTitle", "companyName"].forEach(id => {
+        const val = localStorage.getItem("jaa_" + id);
+        if (val) document.getElementById(id).value = val;
+      });
+    });
+
+    function saveInputs() {
+      ["resumeInput", "jobInput", "candidateName", "roleTitle", "companyName"].forEach(id => {
+        localStorage.setItem("jaa_" + id, document.getElementById(id).value);
+      });
+    }
+
+    function clearSavedData() {
+      ["resumeInput", "jobInput", "candidateName", "roleTitle", "companyName"].forEach(id => {
+        localStorage.removeItem("jaa_" + id);
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("resultsSection").style.display = "none";
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.toggle("dark");
+      localStorage.setItem("jaa_theme", isDark ? "dark" : "light");
+      document.getElementById("themeBtn").textContent = isDark ? "Light Mode" : "Dark Mode";
+    }
+
+    function extractKeywords(text) {
+      const cleaned = text.toLowerCase().replace(/[^a-z0-9+#.\s-]/g, " ");
+      const words = cleaned.split(/\s+/).filter(w => w.length > 2 && !STOP_WORDS.has(w));
+      const freq = {};
+      words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
+      return Object.entries(freq).sort((a, b) => b[1] - a[1]).map(entry => entry[0]);
+    }
+
+    function analyzeApplication() {
+      const resumeText = document.getElementById("resumeInput").value.trim();
+      const jobText = document.getElementById("jobInput").value.trim();
+
+      if (!resumeText || !jobText) {
+        alert("Please paste both your resume and the job description first.");
+        return;
+      }
+
+      const jobKeywords = extractKeywords(jobText).slice(0, 25);
+      const resumeLower = resumeText.toLowerCase();
+
+      const matched = [];
+      const missing = [];
+
+      jobKeywords.forEach(kw => {
+        if (resumeLower.includes(kw)) matched.push(kw);
+        else missing.push(kw);
+      });
+
+      const score = jobKeywords.length > 0
+        ? Math.round((matched.length / jobKeywords.length) * 100)
+        : 0;
+
+      currentAnalysis = { matched, missing, topJobTerms: jobKeywords };
+
+      renderMatchResults(score, matched, missing, resumeText);
+      regenerateCoverLetter();
+      renderInterviewQuestions(matched, missing);
+
+      document.getElementById("resultsSection").style.display = "block";
+    }
+
+    function renderMatchResults(score, matched, missing, resumeText) {
+      document.getElementById("matchScore").textContent = score + "%";
+
+      document.getElementById("matchedKeywords").innerHTML = matched.length
+        ? matched.map(k => `<span class="badge badge-match">${k}</span>`).join("")
+        : `<span style="color:var(--muted); font-size:0.9rem;">No strong keyword overlaps detected.</span>`;
+
+      document.getElementById("missingKeywords").innerHTML = missing.length
+        ? missing.map(k => `<span class="badge badge-miss">${k}</span>`).join("")
+        : `<span style="color:var(--success-text); font-size:0.9rem;">Great job! All top keywords are covered.</span>`;
+
+      const suggestions = [];
+      if (missing.length > 0) {
+        suggestions.push(`Incorporate high-priority missing terms such as <strong>${missing.slice(0, 5).join(", ")}</strong> naturally into your experience bullets if you have relevant background.`);
+      }
+      if (!/\d+%|\$\d+|\d+\+/.test(resumeText)) {
+        suggestions.push("Add measurable achievements (numbers, percentages, or dollar amounts) to demonstrate concrete impact.");
+      }
+      if (resumeText.split(/\s+/).length < 150) {
+        suggestions.push("Your resume appears brief—expand on project outcomes, tools used, and cross-functional collaboration.");
+      }
+      suggestions.push("Mirror the exact phrasing used in the job description for core competencies to pass Applicant Tracking Systems (ATS).");
+
+      document.getElementById("suggestionsList").innerHTML = suggestions.map(s => `<li>${s}</li>`).join("");
+    }
+
+    function regenerateCoverLetter() {
+      const name = document.getElementById("candidateName").value.trim() || "[Your Name]";
+      const role = document.getElementById("roleTitle").value.trim() || "[Target Role]";
+      const company = document.getElementById("companyName").value.trim() || "[Company Name]";
+      const tone = document.getElementById("toneSelect").value;
+
+      const highlights = currentAnalysis.matched.slice(0, 4).join(", ") || "relevant industry skills";
+      const growthArea = currentAnalysis.missing[0] || "new strategic initiatives";
+
+      let opening = "", body = "", closing = "";
+
+      if (tone === "enthusiastic") {
+        opening = `Dear Hiring Team at ${company},\n\nI am thrilled to apply for the ${role} position at ${company}. Having followed ${company}'s momentum, I am eager to bring my hands-on background in ${highlights} to help your team achieve its next phase of growth.`;
+        body = `Throughout my career, I have thrived in fast-paced environments where turning complex challenges into measurable outcomes is key. My direct experience with ${highlights} aligns closely with the priorities outlined in your job description. Furthermore, I am excited to contribute to ${growthArea} while collaborating across teams to deliver high-impact results.`;
+        closing = `I would welcome the opportunity to discuss how my energy and skill set can immediately add value to ${company}. Thank you for your time and consideration!\n\nWarm regards,\n${name}`;
+      } else if (tone === "concise") {
+        opening = `Dear Hiring Manager,\n\nPlease accept this application for the ${role} role at ${company}. With proven experience in ${highlights}, I am confident in my ability to deliver immediate results for your team.`;
+        body = `Key highlights of my background include:\n• Strong command of ${highlights}, directly matching your core requirements.\n• Track record of executing projects on schedule and improving operational efficiency.\n• Readiness to support ${company}'s goals around ${growthArea}.`;
+        closing = `Thank you for reviewing my application. I look forward to speaking with you soon.\n\nSincerely,\n${name}`;
+      } else {
+        opening = `Dear Hiring Manager,\n\nI am writing to express my strong interest in the ${role} position at ${company}. With a solid foundation in ${highlights}, I am confident that my background aligns well with the needs of your team.`;
+        body = `In my previous roles, I have consistently applied expertise in ${highlights} to solve business problems, streamline workflows, and support data-driven decisions. Reviewing your job description, I was particularly drawn to your focus on ${growthArea}, an area where my analytical and collaborative approach can provide immediate support.`;
+        closing = `Thank you for considering my application. I welcome the opportunity to discuss how my skills and experience can contribute to ${company}'s continued success.\n\nBest regards,\n${name}`;
+      }
+
+      document.getElementById("coverLetterOutput").value = `${opening}\n\n${body}\n\n${closing}`;
+    }
+
+    function renderInterviewQuestions(matched, missing) {
+      const role = document.getElementById("roleTitle").value.trim() || "this role";
+      const topMatch = matched[0] || "your core technical skills";
+      const secondMatch = matched[1] || "project execution";
+      const topGap = missing[0] || "emerging industry tools";
+
+      const questions = [
+        {
+          q: `1. Technical / Core Competency: Can you walk us through a specific project where you applied ${topMatch} to achieve a measurable outcome?`,
+          tip: `Tip: Use the STAR method (Situation, Task, Action, Result) and quantify the final impact.`
+        },
+        {
+          q: `2. Gap & Adaptability: This position involves ${topGap}. How would you approach ramping up or applying adjacent experience in this area?`,
+          tip: `Tip: Acknowledge what you know, highlight a similar tool or concept you've mastered quickly, and outline a 30-day learning plan.`
+        },
+        {
+          q: `3. Behavioral Collaboration: Tell me about a time you faced conflicting priorities while working on ${secondMatch}. How did you align stakeholders?`,
+          tip: `Tip: Focus on communication, trade-off analysis, and how you kept the team aligned without escalating unnecessarily.`
+        },
+        {
+          q: `4. Role Motivation: What drew you specifically to ${role}, and what would your first 60 days look like if hired?`,
+          tip: `Tip: Connect two specific requirements from the job description to strengths visible on your resume.`
+        }
+      ];
+
+      document.getElementById("interviewList").innerHTML = questions
+        .map(item => `
+          <div class="qa-item">
+            <div class="qa-q">${item.q}</div>
+            <div class="qa-tip">${item.tip}</div>
+          </div>
+        `).join("");
+    }
+
+    function switchTab(tabId, btnElement) {
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      btnElement.classList.add("active");
+    }
+
+    function copyCoverLetter() {
+      const text = document.getElementById("coverLetterOutput").value;
+      navigator.clipboard.writeText(text).then(() => {
+        const status = document.getElementById("copyStatus");
+        status.textContent = "Copied to clipboard!";
+        setTimeout(() => { status.textContent = ""; }, 2500);
+      });
+    }
+
+    function loadSampleData() {
+      document.getElementById("candidateName").value = "Jordan Taylor";
+      document.getElementById("roleTitle").value = "Product Operations Manager";
+      document.getElementById("companyName").value = "CloudScale Inc.";
+      document.getElementById("resumeInput").value =
+        "Experienced Operations Specialist with 5+ years driving cross-functional product launches, SQL data analysis, and workflow automation. Reduced onboarding bottlenecks by 30% through CRM optimization and stakeholder alignment. Skilled in agile sprints, roadmap planning, Python scripting, and customer feedback synthesis.";
+      document.getElementById("jobInput").value =
+        "We are seeking a Product Operations Manager to streamline product launches, manage agile workflows, and analyze user metrics using SQL and Tableau. You will partner with engineering and customer success teams, lead quarterly roadmap planning, and build scalable documentation processes.";
+      saveInputs();
+      analyzeApplication();
+    }
+  </script>
+</body>
+</html>
